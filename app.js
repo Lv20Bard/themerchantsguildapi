@@ -4,12 +4,14 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var jwt = require('');
+var jwt = require('jsonwebtoken');
+var config = require('./config');
+
 
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
-mongoose.connect('mongodb://localhost/the-merchants-guild-api')
+mongoose.connect(config.database)
 	.then(() => console.log('connection successful'))
 	.catch((err) => console.log(err));
 	
@@ -19,6 +21,10 @@ var items = require('./routes/items');
 var requests = require('./routes/requests');
 
 var app = express();
+
+
+
+app.set('tokenSecret', config.secret);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

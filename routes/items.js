@@ -17,6 +17,17 @@ router.get('/',function(req, res, next){
 });
 
 // Search For Items by tags (Exact Search)
+router.get('/search', function(req, res){
+	Item.find( { tags: { $in: [req.body.tags] } } , function(err, post){
+
+		if(err){
+			return err;
+		}
+		res.json(post);
+	});
+
+});
+
 router.get('/exactsearch', function(req, res){
 	Item.find( { tags: { $all: [req.body.tags] } } , function(err, post){
 
@@ -27,15 +38,6 @@ router.get('/exactsearch', function(req, res){
 	});
 
 });
-
-// Search For Items by tags (Inexact Search)
-router.get('/search', function(req, res){
-	Item.find( { tags: { $in: [req.body.tags] } } , function(err, post){
-		if(err) return err;
-		res.json(post);
-	});
-});
-
 
 
 // Post an Item
