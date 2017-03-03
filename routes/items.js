@@ -18,7 +18,7 @@ router.get('/',function(req, res, next){
 
 // Search For Items by tags (Exact Search)
 router.get('/search', function(req, res){
-	Item.find( { tags: { $in: [req.body.tags] } } , function(err, post){
+	Item.find( { tags: { $in: req.body.tags } } , function(err, post){
 
 		if(err){
 			return err;
@@ -29,7 +29,7 @@ router.get('/search', function(req, res){
 });
 
 router.get('/exactsearch', function(req, res){
-	Item.find( { tags: { $all: [req.body.tags] } } , function(err, post){
+	Item.find( { tags: { $all: req.body.tags } } , function(err, post){
 
 		if(err){
 			return err;
