@@ -1,8 +1,12 @@
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+var upload = multer({ dest: 'uploads/' })
 
 var moongoose = require('mongoose');
 var Item = require('../models/storeitem.js');
+
+var userValidation = require('../middleware/userValidation.js');
 
 // Get All Items
 router.get('/',function(req, res, next){
@@ -40,17 +44,6 @@ router.get('/exactsearch', function(req, res){
 });
 
 
-// Post an Item
-router.post('/', function(req,res,next){
-	Item.create(req.body,function(err,post){
-		if(err){
-			return next(err);
-		}
-		res.json(post);
-	});
-});
-
-
 // Get a specific item
 router.get('/:id',function(req,res, nesxt){
 	Item.findById(req.params.id,function(err,post){
@@ -61,31 +54,69 @@ router.get('/:id',function(req,res, nesxt){
 	});
 });
 
+// Things that Require you to be logged on ***********************************
+
+// Post an Item
+router.post('/', userValidation, function(req,res,next){
+	
+	console.log(req.body);
+	console.log(req.decoded);
+	
+	var item = {
+		name:req.body.name,
+		discription:req.body.discription,
+		tags:req.body.tags,
+		price:req.body.price,
+		user_who_posted:req.decoded._doc._id
+	}
+	
 
 
-
-// Update an Item
-router.put('/:id', function(req,res,next){
-	Item.findByIdAndUpdate(req.params.id, req.body, function(err, post){
+	Item.create(item,function(err,post){
 		if(err){
 			return next(err);
 		}
 		res.json(post);
 	});
+});
+
+
+// Update an Item
+router.put('/:id', userValidation, function(req,res,next){
+			
+	Item.findById(req.params.id, function(err, post){
+		
+		query = { user_who_posted: req.decoded._doc._id };
+		Item.update(query, req.body, function(err, post){
+			if(err){
+				return next(err);
+			}
+
+			res.json(post);	
+		});
+
+	}); 
 });
 
 
 // Delete an Item
-router.delete('/:id',function(){
-	Item.findByIdAndRemove(req.params.id, req.body, function(err,post){
-		if(err){
-			return next(err);
-		}
-		res.json(post);
-	});
+router.delete('/:id', userValidation, function(){
+	Item.findById(req.params.id, function(err, post){
+		
+		query = { user_who_posted: req.decoded._doc._id };
+		Item.remove(query, function(err, post){
+			if(err){
+				return next(err);
+			}
+
+			res.json(post);	
+		});
+
+	}); 
 
 });
 
+// END things that require you to be logged on ********************************
 
 module.exports = router;
 

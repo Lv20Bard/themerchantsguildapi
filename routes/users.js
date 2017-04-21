@@ -8,6 +8,8 @@ var User = require('../models/user.js');
 
 var config = require('../config');
 
+var userValidation = require('../middleware/userValidation.js');
+
 
 
 /* GET users listing. */
@@ -80,8 +82,11 @@ router.post('/login',function(req,res){
 });
 
 
+
+
+
 // Get all users
-router.get('/',function(req,res){
+router.get('/', userValidation, function(req,res){
 	User.find({}, function(err, users){
 		if(err)return err;
 		res.json(users);
